@@ -163,77 +163,135 @@ function Faculty() {
           value={eventForm.eventName} onChange={e => setEventForm({ ...eventForm, eventName: e.target.value })} />
         <input className="border w-full p-2 mb-2 rounded" placeholder="Event Location"
           value={eventForm.eventLocation} onChange={e => setEventForm({ ...eventForm, eventLocation: e.target.value })} />
-        <input className="border w-full p-2 mb-3 rounded" placeholder="Event Date"
+        <input className="border w-full p-2 mb-3 rounded" placeholder="Event Date (e.g. 2025-06-01)"
           value={eventForm.eventDate} onChange={e => setEventForm({ ...eventForm, eventDate: e.target.value })} />
         <button onClick={handlePostEvent} className="bg-gray-800 text-white px-4 py-2 rounded w-full">Post Event</button>
       </div>
-
-      <h3 className="font-semibold mb-3">All Events</h3>
-      {events.map(ev => (
-        <div key={ev.stuRno} className="border p-3 mb-2 flex justify-between">
-          <div>
-            <p className="font-medium">{ev.eventName}</p>
-            <p className="text-sm">{ev.stuName}</p>
+      <div>
+        <h3 className="font-semibold mb-3">All Events</h3>
+        {events.length === 0 && <p className="text-sm text-gray-500">No events yet.</p>}
+        {events.map(ev => (
+          <div key={ev.stuRno} className="border rounded p-3 mb-2 flex justify-between items-start">
+            <div>
+              <p className="font-medium">{ev.eventName}</p>
+              <p className="text-sm text-gray-600">{ev.stuName} ({ev.stuRno}) — {ev.eventLocation} — {ev.eventDate}</p>
+            </div>
+            <button onClick={() => handleDelete(ev.stuRno)} className="text-red-500 text-sm hover:text-red-700 ml-4">Delete</button>
           </div>
-          <button onClick={() => handleDelete(ev.stuRno)}>Delete</button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
+
+// ─── Student Register ─────────────────────────────────────────────────────────
 
 function Register() {
   const [form, setForm] = useState<StudentForm>({ stuRno: '', stuName: '', email: '', password: '' })
+  const [msg, setMsg] = useState('')
 
   async function handleRegister() {
-    await fetch(`${STUDENT_API}/register/user`, {
+    const res = await fetch(`${STUDENT_API}/register/user`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
     })
+    const data: StudentForm = await res.json()
+    if (data?.stuRno) {
+      setMsg('Registered successfully! You can now login.')
+      setForm({ stuRno: '', stuName: '', email: '', password: '' })
+    } else {
+      setMsg('Registration failed.')
+    }
   }
 
   return (
-    <div>
-      <input onChange={e => setForm({ ...form, stuRno: e.target.value })} />
-      <button onClick={handleRegister}>Register</button>
+    <div className="max-w-md mx-auto mt-10">
+      <h2 className="text-xl font-bold mb-4">Student Register</h2>
+      {msg && <p className="text-sm text-blue-600 mb-3">{msg}</p>}
+      <input className="border w-full p-2 mb-3 rounded" placeholder="Roll Number"
+        value={form.stuRno} onChange={e => setForm({ ...form, stuRno: e.target.value })} />
+      <input className="border w-full p-2 mb-3 rounded" placeholder="Name"
+        value={form.stuName} onChange={e => setForm({ ...form, stuName: e.target.value })} />
+      <input className="border w-full p-2 mb-3 rounded" placeholder="Email"
+        value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+      <input className="border w-full p-2 mb-3 rounded" type="password" placeholder="Password"
+        value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+      <button onClick={handleRegister} className="bg-gray-800 text-white px-4 py-2 rounded w-full">Register</button>
     </div>
   )
 }
+
+// ─── Student Login ────────────────────────────────────────────────────────────
 
 function Login() {
   const [form, setForm] = useState<LoginForm>({ email: '', password: '' })
+  const [event, setEvent] = useState<EventData | null>(null)
+  const [msg, setMsg] = useState('')
 
   async function handleLogin() {
-    await fetch(`${STUDENT_API}/login/`, {
+    const res = await fetch(`${STUDENT_API}/login/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
     })
+    const data: EventData | null = await res.json()
+    if (data && data.eventName) {
+      setEvent(data)
+      setMsg('')
+    } else {
+      setMsg('Invalid credentials or no event assigned yet.')
+    }
+  }
+
+  if (event) {
+    return (
+      <div className="max-w-md mx-auto mt-10">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Your Event</h2>
+          <button onClick={() => { setEvent(null); setForm({ email: '', password: '' }) }}
+            className="text-sm text-gray-500 hover:text-gray-800">Logout</button>
+        </div>
+        <div className="border rounded p-4">
+          <p className="font-semibold text-lg mb-1">{event.eventName}</p>
+          <p className="text-gray-600 text-sm">Location: {event.eventLocation}</p>
+          <p className="text-gray-600 text-sm">Date: {event.eventDate}</p>
+          <p className="text-gray-600 text-sm">Student: {event.stuName} ({event.stuRno})</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div>
-      <input onChange={e => setForm({ ...form, email: e.target.value })} />
-      <button onClick={handleLogin}>Login</button>
+    <div className="max-w-md mx-auto mt-10">
+      <h2 className="text-xl font-bold mb-4">Student Login</h2>
+      {msg && <p className="text-sm text-red-500 mb-3">{msg}</p>}
+      <input className="border w-full p-2 mb-3 rounded" placeholder="Email"
+        value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+      <input className="border w-full p-2 mb-3 rounded" type="password" placeholder="Password"
+        value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+      <button onClick={handleLogin} className="bg-gray-800 text-white px-4 py-2 rounded w-full">Login</button>
     </div>
   )
 }
+
+// ─── App with Routes ──────────────────────────────────────────────────────────
 
 export default function App() {
   return (
     <BrowserRouter>
-      <nav>
-        <Link to="/">Faculty</Link>
-        <Link to="/register">Register</Link>
-        <Link to="/login">Login</Link>
+      <nav className="bg-gray-800 text-white px-6 py-3 flex gap-6">
+        <Link className="hover:text-gray-300" to="/">Faculty</Link>
+        <Link className="hover:text-gray-300" to="/register">Student Register</Link>
+        <Link className="hover:text-gray-300" to="/login">Student Login</Link>
       </nav>
-      <Routes>
-        <Route path="/" element={<Faculty />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+      <div className="p-6">
+        <Routes>
+          <Route path="/" element={<Faculty />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   )
 }
-
