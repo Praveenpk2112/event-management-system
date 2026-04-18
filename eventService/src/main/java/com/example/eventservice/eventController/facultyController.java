@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/faculty")
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "*")
 public class facultyController {
 
     private eventService serv;
