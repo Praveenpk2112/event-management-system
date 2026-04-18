@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/register")
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "*")
 public class registerController {
     private final registerService serv;
     registerController(registerService serv1){
