@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 
 const FACULTY_API = "https://event-management-system-4-g7zh.onrender.com";
