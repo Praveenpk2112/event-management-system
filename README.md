@@ -2,8 +2,6 @@
 
 A full-stack event management platform built with a microservices architecture, designed to streamline event creation, faculty coordination, and student registration for campus/organizational events.
 
-🔗 **Live Demo:** [event-management-system-nu-three.vercel.app](https://event-management-system-nu-three.vercel.app)
-
 ---
 
 ## 📌 Overview
@@ -29,7 +27,6 @@ event-management-system/
 | Backend services  | Java (Spring Boot)                  |
 | Frontend          | TypeScript                          |
 | Containerization  | Docker                              |
-| Deployment        | Vercel (frontend)                   |
 
 > ℹ️ *Update this table with the exact frameworks/libraries used in each service (e.g., Spring Boot version, React/Next.js/Angular for the frontend, database used) for full accuracy.*
 
